@@ -64,13 +64,11 @@ def get_existing_strava_start_times(access_token: str, after: date) -> set[str]:
 
 def get_sport_type(class_name: str) -> str:
     name = class_name.lower()
-    if "hyrox" in name:
-        return "HIIT"
     if "tread" in name:
         return "Run"
     if "strength" in name:
         return "WeightTraining"
-    return "Workout"
+    return "HighIntensityIntervalTraining"
 
 
 def build_description(workout) -> str:
@@ -78,18 +76,11 @@ def build_description(workout) -> str:
     zones = workout.zone_time_minutes
     parts = []
 
-    if hr:
-        parts.append(f"Heart rate: avg {hr.avg_hr} bpm ({hr.avg_hr_percent}%) | max {hr.max_hr} bpm")
-
-    if zones:
-        parts.append(
-            f"Zones (min): Gray {zones.gray} | Blue {zones.blue} | "
-            f"Green {zones.green} | Orange {zones.orange} | Red {zones.red}"
-        )
-
     tread = workout.treadmill_data
     if tread:
         tread_parts = []
+        if tread.moving_time:
+            tread_parts.append(f"{tread.moving_time.display_value} {tread.moving_time.display_unit}")
         if tread.total_distance:
             tread_parts.append(f"{tread.total_distance.display_value} {tread.total_distance.display_unit}")
         if tread.elevation_gained:
@@ -97,11 +88,20 @@ def build_description(workout) -> str:
         if tread_parts:
             parts.append("Treadmill: " + " | ".join(tread_parts))
 
+    rower = workout.rower_data
+    if rower:
+        rower_parts = []
+        if rower.moving_time:
+            rower_parts.append(f"{rower.moving_time.display_value} {rower.moving_time.display_unit}")
+        if rower.total_distance:
+            rower_parts.append(f"{rower.total_distance.display_value} {rower.total_distance.display_unit}")
+        if rower.avg_power:
+            rower_parts.append(f"avg {rower.avg_power.display_value} {rower.avg_power.display_unit}")
+        if rower_parts:
+            parts.append("Rower: " + " | ".join(rower_parts))
+
     if workout.splat_points:
         parts.append(f"Splat points: {workout.splat_points}")
-
-    if workout.coach:
-        parts.append(f"Coach: {workout.coach}")
 
     return "\n".join(parts)
 
@@ -201,6 +201,8 @@ def upload_tcx_to_strava(tcx_data: bytes, name: str, sport_type: str, descriptio
         resp.raise_for_status()
         data = resp.json()
         if data.get("error"):
+            if "duplicate" in data["error"].lower():
+                return None  # already uploaded, skip silently
             raise Exception(f"Strava upload error: {data['error']}")
         if data.get("activity_id"):
             return data["activity_id"]
@@ -217,10 +219,10 @@ def upload_workout(workout, otf: Otf, access_token: str, dry_run: bool, existing
         print("  Skipping — no start time available")
         return
 
-    # start_key = start_dt.strftime("%Y-%m-%dT%H:%M")
-    # if start_key in existing:
-    #     print("  Already on Strava — skipping")
-    #     return
+    start_key = start_dt.strftime("%Y-%m-%dT%H:%M")
+    if start_key in existing:
+        print("  Already on Strava — skipping")
+        return
 
     sport_type = get_sport_type(name)
     description = build_description(workout)
@@ -247,6 +249,9 @@ def upload_workout(workout, otf: Otf, access_token: str, dry_run: bool, existing
 
     if tcx_data:
         activity_id = upload_tcx_to_strava(tcx_data, name, sport_type, description, access_token)
+        if activity_id is None:
+            print("  Already on Strava — skipping")
+            return
         print(f"  Uploaded with HR trace -> strava.com/activities/{activity_id}")
     else:
         # Fallback: create manual activity without HR trace
@@ -270,11 +275,15 @@ def upload_workout(workout, otf: Otf, access_token: str, dry_run: bool, existing
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--days", type=int, default=30, help="Days to look back (default: 30)")
+    parser.add_argument("--since", metavar="YYYY-MM-DD", help="Start date (overrides --days)")
     parser.add_argument("--dry-run", action="store_true", help="Preview without uploading to Strava")
     parser.add_argument("--filter", metavar="NAME", help="Only process workouts whose name contains this string (case-insensitive)")
     args = parser.parse_args()
 
-    start_date = date.today() - timedelta(days=args.days)
+    if args.since:
+        start_date = date.fromisoformat(args.since)
+    else:
+        start_date = date.today() - timedelta(days=args.days)
     print(f"Fetching OTF workouts since {start_date}...")
 
     otf = Otf()
