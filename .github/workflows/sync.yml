@@ -1,0 +1,31 @@
+name: Sync OTF to Strava
+
+on:
+  schedule:
+    - cron: '*/15 10-23 * * 1-5'  # weekdays 6am-7:45pm ET
+    - cron: '*/15 0-1 * * 2-6'    # weekdays 8pm-9:45pm ET (UTC next day)
+    - cron: '*/15 13-18 * * 0,6'  # weekends 9am-2pm ET
+  workflow_dispatch:              # allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Sync workouts
+        env:
+          OTF_EMAIL: ${{ secrets.OTF_EMAIL }}
+          OTF_PASSWORD: ${{ secrets.OTF_PASSWORD }}
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
+        run: python upload_to_strava.py --days 1
