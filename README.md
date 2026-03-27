@@ -2,7 +2,7 @@
 
 Automatically syncs your OrangeTheory Fitness workouts to Strava — with real heart rate graphs, treadmill distance, and rower data.
 
-![Strava activity showing HR graph from OTF data](https://placeholder)
+![Strava activity showing HR graph from OTF data](assets/strava-screenshot.png)
 
 ## What gets synced
 
