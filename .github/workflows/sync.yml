@@ -2,9 +2,8 @@ name: Sync OTF to Strava
 
 on:
   schedule:
-    - cron: '*/15 10-23 * * 1-5'  # weekdays 6am-7:45pm ET
-    - cron: '*/15 0-1 * * 2-6'    # weekdays 8pm-9:45pm ET (UTC next day)
-    - cron: '*/15 13-18 * * 0,6'  # weekends 9am-2pm ET
+    - cron: '*/20 9-23 * * *'  # 9am-11:40pm UTC (5am-7:40pm ET)
+    - cron: '*/20 0-3 * * *'   # midnight-3am UTC (8pm-11pm ET)
   workflow_dispatch:              # allow manual trigger
 
 jobs:
@@ -28,4 +27,4 @@ jobs:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
-        run: python upload_to_strava.py --days 2 | tee -a $GITHUB_STEP_SUMMARY
+        run: python upload_to_strava.py --days 1 | tee -a $GITHUB_STEP_SUMMARY
