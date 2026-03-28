@@ -78,6 +78,29 @@ python upload_to_strava.py --filter Tread      # only matching workouts
 python upload_to_strava.py --dry-run           # preview without uploading
 ```
 
+Sample Output:
+```
+(.venv) otf-to-strava % python upload_to_strava.py --days 85
+Fetching OTF workouts since 2026-01-01...
+Found 39 workout(s)
+Getting Strava access token...
+Checking for existing Strava activities...
+Found 11 existing Strava activity/activities in this window
+
+[1/39] Tread 50 (2026-01-02 10:30:00)
+  Uploaded with HR trace -> strava.com/activities/MASKED
+
+[2/39] Orange 60 Min 3G (2026-01-04 08:20:00)
+  Uploaded with HR trace -> strava.com/activities/MASKED
+
+[3/39] Orange HYROX 60 Min 3G (2026-01-12 19:35:00)
+  Uploaded with HR trace -> strava.com/activities/MASKED
+
+...
+
+Done
+```
+
 ## Credits
 
 OTF data powered by [otf-api](https://github.com/NodeJSmith/otf-api) by NodeJSmith.
