@@ -2,8 +2,8 @@ name: Sync OTF to Strava
 
 on:
   schedule:
-    - cron: '*/2 9-23 * * *'  # 9am-11:40pm UTC (5am-7:40pm ET)
-    - cron: '*/2 0-3 * * *'   # midnight-3am UTC (8pm-11pm ET)
+    - cron: '*/20 9-23 * * *'  # 9am-11:40pm UTC (5am-7:40pm ET)
+    - cron: '*/20 0-3 * * *'   # midnight-3am UTC (8pm-11pm ET)
   workflow_dispatch:              # allow manual trigger
 
 jobs:
