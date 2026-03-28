@@ -1,10 +1,8 @@
 # otf-to-strava
 
-Syncs OrangeTheory workouts to Strava — with real heart rate graphs, treadmill distance, and rower data.
+This tool syncs OrangeTheory workouts to Strava — with real heart rate graphs, treadmill distance, and rower data. Vibe coded with Claude to satisfy my need to have all workouts centralized on Strava.
 
 ![Strava activity showing HR graph from OTF data](assets/strava-screenshot.png)
-
-OTF has no native Strava integration, so my classes were a gap in my activity feed. This pulls real per-second HR telemetry from the OTF API so your Strava graph looks exactly like the OTF app.
 
 ## What gets synced
 
