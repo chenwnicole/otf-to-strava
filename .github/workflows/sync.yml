@@ -27,4 +27,4 @@ jobs:
           STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
           STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
           STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
-        run: python upload_to_strava.py --days 1 | tee -a $GITHUB_STEP_SUMMARY
+        run: python upload_to_strava.py --days 10 | tee -a $GITHUB_STEP_SUMMARY
