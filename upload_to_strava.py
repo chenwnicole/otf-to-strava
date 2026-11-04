@@ -25,6 +25,10 @@ from otf_api import Otf
 
 load_dotenv()
 
+# OTF login is case-sensitive on the email, so normalize it before Otf() reads it
+if os.environ.get("OTF_EMAIL"):
+    os.environ["OTF_EMAIL"] = os.environ["OTF_EMAIL"].strip().lower()
+
 STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
 STRAVA_ATHLETE_ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
 STRAVA_UPLOADS_URL = "https://www.strava.com/api/v3/uploads"
