@@ -8,12 +8,17 @@ Usage:
 """
 
 import argparse
+import os
 from datetime import date, timedelta
 
 from dotenv import load_dotenv
 from otf_api import Otf
 
 load_dotenv()
+
+# OTF login is case-sensitive on the email, so normalize it before Otf() reads it
+if os.environ.get("OTF_EMAIL"):
+    os.environ["OTF_EMAIL"] = os.environ["OTF_EMAIL"].strip().lower()
 
 
 def display_workout(workout, i: int) -> None:
